@@ -1,0 +1,93 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserName {
+  MIN
+  MOMOKA
+}
+
+enum Locale {
+  ko
+  ja
+}
+
+enum PostcardStatus {
+  WRITING
+  IN_TRANSIT
+  DELIVERED
+  READ
+}
+
+model User {
+  id                 String   @id @default(cuid())
+  name               UserName @unique
+  defaultLocationLat Float    @map("default_location_lat")
+  defaultLocationLng Float    @map("default_location_lng")
+  preferredLocale    Locale   @default(ko) @map("preferred_locale")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  sentPostcards     Postcard[] @relation("SentPostcards")
+  receivedPostcards Postcard[] @relation("ReceivedPostcards")
+
+  @@map("users")
+}
+
+model Postcard {
+  id               String         @id @default(cuid())
+  senderId         String         @map("sender_id")
+  receiverId       String         @map("receiver_id")
+  imageUrl         String?        @map("image_url")
+  messageKo        String?        @map("message_ko")
+  messageJa        String?        @map("message_ja")
+  designTemplateId String?        @map("design_template_id")
+  status           PostcardStatus @default(WRITING)
+  senderLat        Float?         @map("sender_lat")
+  senderLng        Float?         @map("sender_lng")
+  receiverLat      Float?         @map("receiver_lat")
+  receiverLng      Float?         @map("receiver_lng")
+  pigeonId         String?        @map("pigeon_id")
+  weatherModifier  Float?         @map("weather_modifier")
+  departedAt       DateTime?      @map("departed_at")
+  arrivalEta       DateTime?      @map("arrival_eta")
+  deliveredAt      DateTime?      @map("delivered_at")
+  readAt           DateTime?      @map("read_at")
+  deletedAt        DateTime?      @map("deleted_at")
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+
+  sender         User      @relation("SentPostcards", fields: [senderId], references: [id])
+  receiver       User      @relation("ReceivedPostcards", fields: [receiverId], references: [id])
+  pigeon         Pigeon?   @relation(fields: [pigeonId], references: [id])
+  designTemplate Template? @relation(fields: [designTemplateId], references: [id])
+
+  @@map("postcards")
+}
+
+model Pigeon {
+  id        String  @id @default(cuid())
+  name      String
+  baseSpeed Float   @map("base_speed")
+  avatarUrl String? @map("avatar_url")
+
+  postcards Postcard[]
+
+  @@map("pigeons")
+}
+
+model Template {
+  id           String   @id @default(cuid())
+  name         String
+  thumbnailUrl String   @map("thumbnail_url")
+  tags         String[]
+
+  postcards Postcard[]
+
+  @@map("templates")
+}
