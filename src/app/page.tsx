@@ -4,11 +4,14 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import NameButton from "@/components/NameButton";
 import PinInput from "@/components/PinInput";
+import LanguageToggle from "@/components/LanguageToggle";
+import { useLocale } from "@/components/LocaleProvider";
 import { setCurrentUser, type UserName } from "@/lib/session";
-import { defaultLocale, t } from "@/i18n/dictionaries";
+import { t, type Locale } from "@/i18n/dictionaries";
 
 export default function Home() {
   const router = useRouter();
+  const { locale, setLocale } = useLocale();
   const [selectedUser, setSelectedUser] = useState<UserName | null>(null);
   const [pin, setPin] = useState("");
   const [error, setError] = useState(false);
@@ -34,32 +37,33 @@ export default function Home() {
       return;
     }
 
+    const data: { preferredLocale: Locale } = await res.json();
+    setLocale(data.preferredLocale);
     setCurrentUser(selectedUser);
     router.push("/inbox");
   }
 
   if (selectedUser) {
     const label = t(
-      defaultLocale,
+      locale,
       selectedUser === "MIN" ? "home.selectMin" : "home.selectMomoka",
     );
 
     return (
       <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-zinc-50 px-6 dark:bg-black">
+        <LanguageToggle />
         <div className="text-center">
           <h1 className="text-2xl font-bold text-neutral-800 dark:text-neutral-100">
             {label}
           </h1>
           <p className="mt-2 text-neutral-500 dark:text-neutral-400">
-            {t(defaultLocale, "pin.prompt")}
+            {t(locale, "pin.prompt")}
           </p>
         </div>
 
         <PinInput value={pin} onChange={setPin} disabled={submitting} />
 
-        {error && (
-          <p className="text-sm text-red-500">{t(defaultLocale, "pin.error")}</p>
-        )}
+        {error && <p className="text-sm text-red-500">{t(locale, "pin.error")}</p>}
 
         <div className="flex flex-col items-center gap-3">
           <button
@@ -68,7 +72,7 @@ export default function Home() {
             disabled={pin.length !== 4 || submitting}
             className="rounded-xl bg-neutral-800 px-8 py-2 text-white disabled:opacity-40 dark:bg-neutral-100 dark:text-neutral-900"
           >
-            {t(defaultLocale, "pin.submit")}
+            {t(locale, "pin.submit")}
           </button>
           <button
             type="button"
@@ -79,7 +83,7 @@ export default function Home() {
             }}
             className="text-sm text-neutral-500 underline"
           >
-            {t(defaultLocale, "pin.back")}
+            {t(locale, "pin.back")}
           </button>
         </div>
       </main>
@@ -88,22 +92,23 @@ export default function Home() {
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-10 bg-zinc-50 px-6 dark:bg-black">
+      <LanguageToggle />
       <div className="text-center">
         <h1 className="text-3xl font-bold text-neutral-800 dark:text-neutral-100">
-          {t(defaultLocale, "home.title")}
+          {t(locale, "home.title")}
         </h1>
         <p className="mt-2 text-neutral-500 dark:text-neutral-400">
-          {t(defaultLocale, "home.subtitle")}
+          {t(locale, "home.subtitle")}
         </p>
       </div>
 
       <div className="flex flex-col gap-4 sm:flex-row">
         <NameButton
-          label={t(defaultLocale, "home.selectMin")}
+          label={t(locale, "home.selectMin")}
           onClick={() => setSelectedUser("MIN")}
         />
         <NameButton
-          label={t(defaultLocale, "home.selectMomoka")}
+          label={t(locale, "home.selectMomoka")}
           onClick={() => setSelectedUser("MOMOKA")}
         />
       </div>
