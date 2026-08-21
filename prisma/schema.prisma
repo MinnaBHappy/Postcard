@@ -27,6 +27,7 @@ enum PostcardStatus {
 model User {
   id                 String   @id @default(cuid())
   name               UserName @unique
+  pin                String
   defaultLocationLat Float    @map("default_location_lat")
   defaultLocationLng Float    @map("default_location_lng")
   preferredLocale    Locale   @default(ko) @map("preferred_locale")

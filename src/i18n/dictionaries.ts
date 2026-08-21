@@ -12,6 +12,10 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
     "nav.write": "엽서 쓰기",
     "nav.inbox": "수신함",
     "nav.archive": "타임라인",
+    "pin.prompt": "PIN 4자리를 입력하세요",
+    "pin.submit": "확인",
+    "pin.back": "뒤로가기",
+    "pin.error": "PIN이 일치하지 않습니다",
   },
   ja: {
     "home.title": "ふたりのポストカード",
@@ -21,6 +25,10 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
     "nav.write": "ポストカードを書く",
     "nav.inbox": "受信箱",
     "nav.archive": "タイムライン",
+    "pin.prompt": "4桁のPINを入力してください",
+    "pin.submit": "確認",
+    "pin.back": "戻る",
+    "pin.error": "PINが一致しません",
   },
 };
 
