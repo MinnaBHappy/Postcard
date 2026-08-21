@@ -40,6 +40,22 @@ async function main() {
       await prisma.pigeon.create({ data: pigeon });
     }
   }
+
+  // thumbnailUrl은 아직 실제 디자인이 없어서 임시로 색상 코드를 넣어둠 (나중에 실제 이미지 URL로 교체)
+  const templates = [
+    { name: "Sunset", thumbnailUrl: "#F4A261", tags: ["warm", "romantic"] },
+    { name: "Ocean", thumbnailUrl: "#4A9DAB", tags: ["cool", "calm"] },
+    { name: "Forest", thumbnailUrl: "#588157", tags: ["nature", "calm"] },
+    { name: "Blossom", thumbnailUrl: "#F2A6C0", tags: ["spring", "cute"] },
+    { name: "Night Sky", thumbnailUrl: "#3A3269", tags: ["night", "dreamy"] },
+  ];
+
+  for (const template of templates) {
+    const existing = await prisma.template.findFirst({ where: { name: template.name } });
+    if (!existing) {
+      await prisma.template.create({ data: template });
+    }
+  }
 }
 
 main()
