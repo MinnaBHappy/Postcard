@@ -144,8 +144,8 @@ export default function PostcardDetailPage() {
       )}
 
       {delivered && (
-        <div className="flex flex-col gap-3">
-          <p className="font-medium text-neutral-700 dark:text-neutral-200">
+        <div className="flex flex-col gap-4">
+          <p className="text-2xl font-extrabold tracking-tight text-amber-600 dark:text-amber-400">
             {t(locale, "postcard.arrived")}
           </p>
           {postcard.imageUrl && (
@@ -153,7 +153,15 @@ export default function PostcardDetailPage() {
             <img src={postcard.imageUrl} alt="" className="w-full rounded-lg object-cover" />
           )}
           {message && (
-            <p className="whitespace-pre-wrap text-neutral-800 dark:text-neutral-100">{message}</p>
+            <p
+              className="whitespace-pre-wrap text-lg leading-relaxed text-neutral-800 dark:text-neutral-100"
+              style={{
+                fontFamily:
+                  locale === "ja" ? "var(--font-message-ja)" : "var(--font-message-ko)",
+              }}
+            >
+              {message}
+            </p>
           )}
         </div>
       )}
