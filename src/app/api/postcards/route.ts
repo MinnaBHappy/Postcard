@@ -2,8 +2,34 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { distanceKm } from "@/lib/geo";
 
-export async function GET() {
-  return NextResponse.json({ postcards: [] });
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const viewer = searchParams.get("viewer");
+
+  if (viewer !== "MIN" && viewer !== "MOMOKA") {
+    return NextResponse.json({ error: "invalid viewer" }, { status: 400 });
+  }
+
+  const user = await prisma.user.findUnique({ where: { name: viewer } });
+
+  if (!user) {
+    return NextResponse.json({ error: "user not found" }, { status: 404 });
+  }
+
+  const [sent, received] = await Promise.all([
+    prisma.postcard.findMany({
+      where: { senderId: user.id, deletedAt: null },
+      include: { receiver: true, pigeon: true },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.postcard.findMany({
+      where: { receiverId: user.id, deletedAt: null },
+      include: { sender: true, pigeon: true },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
+
+  return NextResponse.json({ sent, received });
 }
 
 export async function POST(request: Request) {
