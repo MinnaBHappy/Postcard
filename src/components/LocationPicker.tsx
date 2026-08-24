@@ -70,16 +70,14 @@ export default function LocationPicker({ onResolved }: LocationPickerProps) {
           onChange={(e) => setAddress(e.target.value)}
           placeholder={t(locale, "location.manualPlaceholder")}
           disabled={submitting}
-          className="rounded-lg border border-neutral-300 px-3 py-2 dark:border-neutral-700 dark:bg-neutral-900"
+          className="rounded-lg border border-rule bg-paper-elevated px-3 py-2 text-foreground"
         />
-        {error && (
-          <p className="text-sm text-red-500">{t(locale, "location.notFound")}</p>
-        )}
+        {error && <p className="status-text status-text--error">{t(locale, "location.notFound")}</p>}
         <button
           type="button"
           onClick={submitAddress}
           disabled={submitting || !address.trim()}
-          className="rounded-lg bg-neutral-800 px-4 py-2 text-white disabled:opacity-40 dark:bg-neutral-100 dark:text-neutral-900"
+          className="rounded-lg bg-accent px-4 py-2 font-semibold text-accent-ink disabled:opacity-40"
         >
           {t(locale, "location.submit")}
         </button>
@@ -93,14 +91,14 @@ export default function LocationPicker({ onResolved }: LocationPickerProps) {
         type="button"
         onClick={useCurrentLocation}
         disabled={locating}
-        className="rounded-lg bg-neutral-800 px-4 py-2 text-white disabled:opacity-60 dark:bg-neutral-100 dark:text-neutral-900"
+        className="rounded-lg bg-accent px-4 py-2 font-semibold text-accent-ink disabled:opacity-60"
       >
         {locating ? t(locale, "location.locating") : t(locale, "location.useCurrent")}
       </button>
       <button
         type="button"
         onClick={() => setMode("manual")}
-        className="text-sm text-neutral-500 underline"
+        className="text-sm text-ink-muted underline"
       >
         {t(locale, "location.enterManually")}
       </button>

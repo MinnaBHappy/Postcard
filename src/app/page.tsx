@@ -50,15 +50,16 @@ export default function Home() {
     );
 
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-zinc-50 px-6 dark:bg-black">
+      <main className="flex min-h-screen flex-col items-center justify-center gap-6 bg-background px-6">
         <LanguageToggle />
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-neutral-800 dark:text-neutral-100">
+          <h1
+            className="text-2xl font-bold text-foreground"
+            style={{ fontFamily: locale === "ja" ? "var(--font-message-ja)" : "var(--font-message-ko)" }}
+          >
             {label}
           </h1>
-          <p className="mt-2 text-neutral-500 dark:text-neutral-400">
-            {t(locale, "pin.prompt")}
-          </p>
+          <p className="mt-2 text-ink-muted">{t(locale, "pin.prompt")}</p>
         </div>
 
         <PinInput value={pin} onChange={setPin} disabled={submitting} />
@@ -70,7 +71,7 @@ export default function Home() {
             type="button"
             onClick={handleSubmitPin}
             disabled={pin.length !== 4 || submitting}
-            className="rounded-xl bg-neutral-800 px-8 py-2 text-white disabled:opacity-40 dark:bg-neutral-100 dark:text-neutral-900"
+            className="rounded-xl bg-accent px-8 py-2 font-semibold text-accent-ink disabled:opacity-40"
           >
             {t(locale, "pin.submit")}
           </button>
@@ -81,7 +82,7 @@ export default function Home() {
               setPin("");
               setError(false);
             }}
-            className="text-sm text-neutral-500 underline"
+            className="text-sm text-ink-muted underline"
           >
             {t(locale, "pin.back")}
           </button>
@@ -91,15 +92,16 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center gap-10 bg-zinc-50 px-6 dark:bg-black">
+    <main className="flex min-h-screen flex-col items-center justify-center gap-10 bg-background px-6">
       <LanguageToggle />
       <div className="text-center">
-        <h1 className="text-3xl font-bold text-neutral-800 dark:text-neutral-100">
+        <h1
+          className="text-3xl font-bold text-foreground"
+          style={{ fontFamily: locale === "ja" ? "var(--font-message-ja)" : "var(--font-message-ko)" }}
+        >
           {t(locale, "home.title")}
         </h1>
-        <p className="mt-2 text-neutral-500 dark:text-neutral-400">
-          {t(locale, "home.subtitle")}
-        </p>
+        <p className="mt-2 text-ink-muted">{t(locale, "home.subtitle")}</p>
       </div>
 
       <div className="flex flex-col gap-4 sm:flex-row">

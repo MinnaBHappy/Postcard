@@ -53,6 +53,10 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
     "postcard.loading": "불러오는 중...",
     "postcard.notFound": "엽서를 찾을 수 없어요",
     "postcard.backToInbox": "수신함으로",
+    "postcard.noPhoto": "사진 없음",
+    "postcard.flipHint": "탭해서 뒤집기",
+    "write.photoHint": "jpg, png, 아이폰 사진(HEIC) 1장만 첨부할 수 있어요",
+    "write.photoInvalid": "jpg, png, HEIC 파일만 업로드할 수 있어요",
   },
   ja: {
     "home.title": "ふたりのポストカード",
@@ -103,6 +107,10 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
     "postcard.loading": "読み込み中...",
     "postcard.notFound": "ポストカードが見つかりません",
     "postcard.backToInbox": "受信箱へ",
+    "postcard.noPhoto": "写真なし",
+    "postcard.flipHint": "タップして裏返す",
+    "write.photoHint": "jpg、png、iPhone写真(HEIC)を1枚だけ添付できます",
+    "write.photoInvalid": "jpg、png、HEICファイルのみアップロードできます",
   },
 };
 

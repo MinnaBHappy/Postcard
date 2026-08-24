@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import LocationPicker, { type LatLng } from "@/components/LocationPicker";
+import PostcardFace from "@/components/PostcardFace";
 import { useLocale } from "@/components/LocaleProvider";
-import { getCurrentUser } from "@/lib/session";
+import { getCurrentUser, getOtherUser } from "@/lib/session";
 import { t } from "@/i18n/dictionaries";
+import { styleKeyFromTemplateName } from "@/lib/postcardStyles";
 
 type Template = {
   id: string;
@@ -13,6 +15,16 @@ type Template = {
   thumbnailUrl: string;
   tags: string[];
 };
+
+const ACCEPTED_TYPES = ["image/jpeg", "image/png", "image/heic", "image/heif"];
+const ACCEPTED_EXTENSIONS = [".jpg", ".jpeg", ".png", ".heic", ".heif"];
+
+function isAcceptedPhoto(file: File) {
+  if (ACCEPTED_TYPES.includes(file.type)) return true;
+  // 아이폰 HEIC 파일은 브라우저가 type을 못 읽는 경우가 있어서 확장자로도 확인
+  const lower = file.name.toLowerCase();
+  return ACCEPTED_EXTENSIONS.some((ext) => lower.endsWith(ext));
+}
 
 export default function WritePage() {
   const router = useRouter();
@@ -47,13 +59,23 @@ export default function WritePage() {
   useEffect(() => {
     fetch("/api/templates")
       .then((res) => res.json())
-      .then((data) => setTemplates(data.templates ?? []))
+      .then((data) => {
+        const list: Template[] = data.templates ?? [];
+        setTemplates(list);
+        if (list.length > 0) setSelectedTemplateId(list[0].id);
+      })
       .catch(() => setTemplates([]));
   }, []);
 
   async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (!file) return;
+
+    if (!isAcceptedPhoto(file)) {
+      setImageError(t(locale, "write.photoInvalid"));
+      e.target.value = "";
+      return;
+    }
 
     setImageError(null);
     setUploading(true);
@@ -66,7 +88,7 @@ export default function WritePage() {
 
     if (!res.ok) {
       const data = await res.json().catch(() => ({}));
-      setImageError(data.error ?? "업로드 실패");
+      setImageError(data.error ?? t(locale, "write.photoInvalid"));
       return;
     }
 
@@ -136,26 +158,42 @@ export default function WritePage() {
 
   if (!senderLocation) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-zinc-50 px-6 dark:bg-black">
-        <p className="text-neutral-600 dark:text-neutral-300">
-          {t(locale, "write.locationPrompt")}
-        </p>
+      <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background px-6">
+        <p className="text-ink-muted">{t(locale, "write.locationPrompt")}</p>
         <LocationPicker onResolved={setSenderLocation} />
       </main>
     );
   }
 
+  const selectedTemplate = templates.find((tpl) => tpl.id === selectedTemplateId);
+  const previewMessage = (locale === "ja" ? messageJa : messageKo) || "";
+
   return (
-    <main className="mx-auto flex min-h-screen max-w-lg flex-col gap-6 bg-zinc-50 px-6 py-10 dark:bg-black">
-      <h1 className="text-2xl font-bold text-neutral-800 dark:text-neutral-100">
-        {t(locale, "write.title")}
-      </h1>
+    <main className="mx-auto flex min-h-screen max-w-lg flex-col gap-6 bg-background px-6 py-10">
+      <h1 className="text-2xl font-bold text-foreground">{t(locale, "write.title")}</h1>
+
+      {selectedTemplate && (
+        <div className="aspect-[3/2] w-full">
+          <PostcardFace
+            styleKey={styleKeyFromTemplateName(selectedTemplate.name)}
+            message={previewMessage}
+            toName={getOtherUser(senderName)}
+            locale={locale}
+          />
+        </div>
+      )}
 
       <div>
-        <label className="mb-1 block text-sm text-neutral-600 dark:text-neutral-300">
+        <label className="mb-1 block text-sm text-ink-muted">
           {t(locale, "write.photoLabel")}
         </label>
-        <input type="file" accept="image/*" onChange={handleFileChange} disabled={uploading} />
+        <input
+          type="file"
+          accept="image/jpeg,image/png,image/heic,image/heif,.heic,.heif"
+          onChange={handleFileChange}
+          disabled={uploading}
+        />
+        <p className="status-text mt-1">{t(locale, "write.photoHint")}</p>
         {uploading && <p className="status-text mt-1">...</p>}
         {imageError && <p className="status-text status-text--error mt-1">{imageError}</p>}
         {imageUrl && (
@@ -165,61 +203,65 @@ export default function WritePage() {
       </div>
 
       <div>
-        <label className="mb-1 block text-sm text-neutral-600 dark:text-neutral-300">
+        <label className="mb-1 block text-sm text-ink-muted">
           {t(locale, "write.messageKoLabel")}
         </label>
         <textarea
           value={messageKo}
           onChange={(e) => setMessageKo(e.target.value)}
           rows={3}
-          className="w-full rounded-lg border border-neutral-300 p-2 dark:border-neutral-700 dark:bg-neutral-900"
+          className="w-full rounded-lg border border-rule bg-paper-elevated p-2 text-foreground"
         />
         <button
           type="button"
           onClick={() => translate("ko-to-ja")}
           disabled={!messageKo.trim() || translating !== null}
-          className="mt-1 text-sm text-neutral-500 underline disabled:opacity-40"
+          className="mt-1 text-sm text-accent underline disabled:opacity-40"
         >
           {translating === "ja" ? t(locale, "write.translating") : t(locale, "write.translateToJa")}
         </button>
       </div>
 
       <div>
-        <label className="mb-1 block text-sm text-neutral-600 dark:text-neutral-300">
+        <label className="mb-1 block text-sm text-ink-muted">
           {t(locale, "write.messageJaLabel")}
         </label>
         <textarea
           value={messageJa}
           onChange={(e) => setMessageJa(e.target.value)}
           rows={3}
-          className="w-full rounded-lg border border-neutral-300 p-2 dark:border-neutral-700 dark:bg-neutral-900"
+          className="w-full rounded-lg border border-rule bg-paper-elevated p-2 text-foreground"
         />
         <button
           type="button"
           onClick={() => translate("ja-to-ko")}
           disabled={!messageJa.trim() || translating !== null}
-          className="mt-1 text-sm text-neutral-500 underline disabled:opacity-40"
+          className="mt-1 text-sm text-accent underline disabled:opacity-40"
         >
           {translating === "ko" ? t(locale, "write.translating") : t(locale, "write.translateToKo")}
         </button>
       </div>
 
       <div>
-        <p className="mb-2 text-sm text-neutral-600 dark:text-neutral-300">
-          {t(locale, "write.chooseTemplate")}
-        </p>
+        <p className="mb-2 text-sm text-ink-muted">{t(locale, "write.chooseTemplate")}</p>
         <div className="flex flex-wrap gap-3">
           {templates.map((tpl) => (
             <button
               key={tpl.id}
               type="button"
               onClick={() => setSelectedTemplateId(tpl.id)}
-              className={`h-16 w-16 rounded-lg border-2 ${
-                selectedTemplateId === tpl.id ? "border-neutral-800 dark:border-neutral-100" : "border-transparent"
-              }`}
-              style={{ backgroundColor: tpl.thumbnailUrl }}
               title={tpl.name}
-            />
+              className={`aspect-[3/2] w-24 overflow-hidden rounded-lg ring-2 transition ${
+                selectedTemplateId === tpl.id ? "ring-accent" : "ring-transparent"
+              }`}
+            >
+              <PostcardFace
+                styleKey={styleKeyFromTemplateName(tpl.name)}
+                message={locale === "ja" ? "こんにちは" : "안녕!"}
+                locale={locale}
+                compact
+              />
+            </button>
           ))}
         </div>
       </div>
@@ -228,7 +270,7 @@ export default function WritePage() {
         type="button"
         onClick={handleSend}
         disabled={sending || (!messageKo.trim() && !messageJa.trim())}
-        className="rounded-xl bg-neutral-800 px-8 py-3 text-white disabled:opacity-40 dark:bg-neutral-100 dark:text-neutral-900"
+        className="rounded-xl bg-accent px-8 py-3 font-semibold text-accent-ink disabled:opacity-40"
       >
         {sending ? t(locale, "write.sending") : t(locale, "write.send")}
       </button>

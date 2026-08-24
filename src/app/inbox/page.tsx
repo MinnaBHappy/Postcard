@@ -50,38 +50,41 @@ export default function InboxPage() {
   }, [router]);
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-lg flex-col gap-8 px-6 py-10">
+    <main className="mx-auto flex min-h-screen max-w-lg flex-col gap-8 bg-background px-6 py-10">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-neutral-800 dark:text-neutral-100">
+        <h1
+          className="text-2xl font-bold text-foreground"
+          style={{ fontFamily: locale === "ja" ? "var(--font-message-ja)" : "var(--font-message-ko)" }}
+        >
           {t(locale, "inbox.title")}
         </h1>
-        <Link href="/write" className="text-sm text-neutral-500 underline">
+        <Link href="/write" className="text-sm text-accent underline">
           {t(locale, "nav.write")}
         </Link>
       </div>
 
       {loading ? (
-        <p className="text-neutral-500">{t(locale, "inbox.loading")}</p>
+        <p className="text-ink-muted">{t(locale, "inbox.loading")}</p>
       ) : (
         <>
           <section>
-            <h2 className="mb-2 text-sm font-semibold text-neutral-500">
+            <h2 className="mb-2 text-sm font-semibold text-ink-muted">
               {t(locale, "inbox.received")}
             </h2>
             {received.length === 0 ? (
-              <p className="text-sm text-neutral-400">{t(locale, "inbox.empty")}</p>
+              <p className="text-sm text-ink-muted">{t(locale, "inbox.empty")}</p>
             ) : (
               <ul className="flex flex-col gap-2">
                 {received.map((postcard) => (
                   <li key={postcard.id}>
                     <Link
                       href={`/postcard/${postcard.id}`}
-                      className="flex items-center justify-between rounded-lg border border-neutral-200 px-4 py-3 dark:border-neutral-700"
+                      className="flex items-center justify-between rounded-lg border border-rule bg-paper-elevated px-4 py-3 transition hover:border-accent"
                     >
-                      <span>
+                      <span className="text-foreground">
                         {t(locale, "postcard.from")}: {postcard.sender.name}
                       </span>
-                      <span className="status-text">
+                      <span className="status-text rounded-full bg-accent-soft px-2 py-0.5">
                         {t(locale, `status.${postcard.status}`)}
                       </span>
                     </Link>
@@ -92,23 +95,23 @@ export default function InboxPage() {
           </section>
 
           <section>
-            <h2 className="mb-2 text-sm font-semibold text-neutral-500">
+            <h2 className="mb-2 text-sm font-semibold text-ink-muted">
               {t(locale, "inbox.sent")}
             </h2>
             {sent.length === 0 ? (
-              <p className="text-sm text-neutral-400">{t(locale, "inbox.empty")}</p>
+              <p className="text-sm text-ink-muted">{t(locale, "inbox.empty")}</p>
             ) : (
               <ul className="flex flex-col gap-2">
                 {sent.map((postcard) => (
                   <li key={postcard.id}>
                     <Link
                       href={`/postcard/${postcard.id}`}
-                      className="flex items-center justify-between rounded-lg border border-neutral-200 px-4 py-3 dark:border-neutral-700"
+                      className="flex items-center justify-between rounded-lg border border-rule bg-paper-elevated px-4 py-3 transition hover:border-accent"
                     >
-                      <span>
+                      <span className="text-foreground">
                         {t(locale, "postcard.to")}: {postcard.receiver.name}
                       </span>
-                      <span className="status-text">
+                      <span className="status-text rounded-full bg-accent-soft px-2 py-0.5">
                         {t(locale, `status.${postcard.status}`)}
                       </span>
                     </Link>

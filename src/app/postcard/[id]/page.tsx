@@ -7,6 +7,8 @@ import { useParams, useRouter } from "next/navigation";
 import { useLocale } from "@/components/LocaleProvider";
 import { getCurrentUser } from "@/lib/session";
 import { t } from "@/i18n/dictionaries";
+import { styleKeyFromTemplateName } from "@/lib/postcardStyles";
+import FlippablePostcard from "@/components/FlippablePostcard";
 
 const PigeonMap = dynamic(() => import("@/components/PigeonMap"), { ssr: false });
 
@@ -26,6 +28,7 @@ type PostcardDetail = {
   sender: { name: string };
   receiver: { name: string };
   pigeon: { name: string } | null;
+  designTemplate: { name: string } | null;
 };
 
 type DetailResponse = {
@@ -76,9 +79,9 @@ export default function PostcardDetailPage() {
 
   if (notFound) {
     return (
-      <main className="flex min-h-screen flex-col items-center justify-center gap-4">
-        <p className="text-neutral-500">{t(locale, "postcard.notFound")}</p>
-        <Link href="/inbox" className="text-sm text-neutral-500 underline">
+      <main className="flex min-h-screen flex-col items-center justify-center gap-4 bg-background">
+        <p className="text-ink-muted">{t(locale, "postcard.notFound")}</p>
+        <Link href="/inbox" className="text-sm text-accent underline">
           {t(locale, "postcard.backToInbox")}
         </Link>
       </main>
@@ -87,8 +90,8 @@ export default function PostcardDetailPage() {
 
   if (!data) {
     return (
-      <main className="flex min-h-screen items-center justify-center">
-        <p className="text-neutral-500">{t(locale, "postcard.loading")}</p>
+      <main className="flex min-h-screen items-center justify-center bg-background">
+        <p className="text-ink-muted">{t(locale, "postcard.loading")}</p>
       </main>
     );
   }
@@ -98,16 +101,16 @@ export default function PostcardDetailPage() {
   const message = locale === "ja" ? postcard.messageJa : postcard.messageKo;
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-lg flex-col gap-6 px-6 py-10">
-      <Link href="/inbox" className="text-sm text-neutral-500 underline">
+    <main className="mx-auto flex min-h-screen max-w-lg flex-col gap-6 bg-background px-6 py-10">
+      <Link href="/inbox" className="text-sm text-accent underline">
         {t(locale, "postcard.backToInbox")}
       </Link>
 
       <div className="flex items-center justify-between">
-        <p className="text-sm text-neutral-500">
+        <p className="text-sm text-ink-muted">
           {t(locale, "postcard.from")}: {postcard.sender.name} → {t(locale, "postcard.to")}: {postcard.receiver.name}
         </p>
-        <span className="status-text rounded-full bg-neutral-100 px-3 py-1 dark:bg-neutral-800">
+        <span className="status-text rounded-full bg-accent-soft px-3 py-1">
           {t(locale, `status.${postcard.status}`)}
         </span>
       </div>
@@ -125,18 +128,15 @@ export default function PostcardDetailPage() {
 
       {!delivered && (
         <div>
-          <div className="mb-1 flex justify-between text-xs text-neutral-500">
+          <div className="mb-1 flex justify-between text-xs text-ink-muted">
             <span>{t(locale, "postcard.progress")}</span>
             <span>{Math.round(progress * 100)}%</span>
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-neutral-200 dark:bg-neutral-800">
-            <div
-              className="h-full bg-neutral-800 dark:bg-neutral-100"
-              style={{ width: `${Math.round(progress * 100)}%` }}
-            />
+          <div className="h-2 w-full overflow-hidden rounded-full bg-accent-soft">
+            <div className="h-full bg-accent" style={{ width: `${Math.round(progress * 100)}%` }} />
           </div>
           {postcard.pigeon && (
-            <p className="mt-2 text-sm text-neutral-500">
+            <p className="mt-2 text-sm text-ink-muted">
               {t(locale, "postcard.pigeon")}: {postcard.pigeon.name}
             </p>
           )}
@@ -145,24 +145,18 @@ export default function PostcardDetailPage() {
 
       {delivered && (
         <div className="flex flex-col gap-4">
-          <p className="text-2xl font-extrabold tracking-tight text-amber-600 dark:text-amber-400">
+          <p className="text-2xl font-extrabold tracking-tight text-accent">
             {t(locale, "postcard.arrived")}
           </p>
-          {postcard.imageUrl && (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={postcard.imageUrl} alt="" className="w-full rounded-lg object-cover" />
-          )}
-          {message && (
-            <p
-              className="whitespace-pre-wrap text-lg leading-relaxed text-neutral-800 dark:text-neutral-100"
-              style={{
-                fontFamily:
-                  locale === "ja" ? "var(--font-message-ja)" : "var(--font-message-ko)",
-              }}
-            >
-              {message}
-            </p>
-          )}
+          <FlippablePostcard
+            styleKey={styleKeyFromTemplateName(postcard.designTemplate?.name)}
+            message={message ?? ""}
+            toName={postcard.receiver.name}
+            locale={locale}
+            imageUrl={postcard.imageUrl}
+            noPhotoLabel={t(locale, "postcard.noPhoto")}
+            flipHintLabel={t(locale, "postcard.flipHint")}
+          />
         </div>
       )}
     </main>

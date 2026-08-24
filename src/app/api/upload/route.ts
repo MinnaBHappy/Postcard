@@ -21,6 +21,19 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "file is required" }, { status: 400 });
   }
 
+  const acceptedTypes = ["image/jpeg", "image/png", "image/heic", "image/heif"];
+  const acceptedExtensions = [".jpg", ".jpeg", ".png", ".heic", ".heif"];
+  const nameLower = file.name.toLowerCase();
+  const isAccepted =
+    acceptedTypes.includes(file.type) || acceptedExtensions.some((ext) => nameLower.endsWith(ext));
+
+  if (!isAccepted) {
+    return NextResponse.json(
+      { error: "jpg, png, HEIC 파일만 업로드할 수 있어요" },
+      { status: 400 },
+    );
+  }
+
   const bytes = new Uint8Array(await file.arrayBuffer());
   const key = `postcards/${Date.now()}-${crypto.randomUUID()}`;
 
