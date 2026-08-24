@@ -63,7 +63,7 @@ export default function Home() {
 
         <PinInput value={pin} onChange={setPin} disabled={submitting} />
 
-        {error && <p className="text-sm text-red-500">{t(locale, "pin.error")}</p>}
+        {error && <p className="status-text status-text--error">{t(locale, "pin.error")}</p>}
 
         <div className="flex flex-col items-center gap-3">
           <button

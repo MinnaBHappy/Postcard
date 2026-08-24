@@ -107,7 +107,7 @@ export default function PostcardDetailPage() {
         <p className="text-sm text-neutral-500">
           {t(locale, "postcard.from")}: {postcard.sender.name} → {t(locale, "postcard.to")}: {postcard.receiver.name}
         </p>
-        <span className="rounded-full bg-neutral-100 px-3 py-1 text-xs dark:bg-neutral-800">
+        <span className="status-text rounded-full bg-neutral-100 px-3 py-1 dark:bg-neutral-800">
           {t(locale, `status.${postcard.status}`)}
         </span>
       </div>

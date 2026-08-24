@@ -24,3 +24,17 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+/* 시스템이 알려주는 상태 문구(로딩/성공/실패/배지)를 사용자가 직접 입력한
+   글(엽서 메시지 등)과 뚜렷이 구분하기 위한 공통 스타일 */
+@layer components {
+  .status-text {
+    @apply text-xs font-semibold uppercase tracking-wide text-neutral-500 dark:text-neutral-400;
+  }
+  .status-text--success {
+    @apply text-emerald-600 dark:text-emerald-400;
+  }
+  .status-text--error {
+    @apply text-red-600 dark:text-red-400;
+  }
+}

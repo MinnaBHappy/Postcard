@@ -156,8 +156,8 @@ export default function WritePage() {
           {t(locale, "write.photoLabel")}
         </label>
         <input type="file" accept="image/*" onChange={handleFileChange} disabled={uploading} />
-        {uploading && <p className="text-sm text-neutral-500">...</p>}
-        {imageError && <p className="text-sm text-red-500">{imageError}</p>}
+        {uploading && <p className="status-text mt-1">...</p>}
+        {imageError && <p className="status-text status-text--error mt-1">{imageError}</p>}
         {imageUrl && (
           // eslint-disable-next-line @next/next/no-img-element
           <img src={imageUrl} alt="" className="mt-2 h-40 w-40 rounded-lg object-cover" />
@@ -234,10 +234,10 @@ export default function WritePage() {
       </button>
 
       {sendResult === "success" && (
-        <p className="text-sm text-green-600">{t(locale, "write.sentSuccess")}</p>
+        <p className="status-text status-text--success">{t(locale, "write.sentSuccess")}</p>
       )}
       {sendResult === "error" && (
-        <p className="text-sm text-red-500">{t(locale, "write.sendError")}</p>
+        <p className="status-text status-text--error">{t(locale, "write.sendError")}</p>
       )}
     </main>
   );

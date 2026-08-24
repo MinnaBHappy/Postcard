@@ -81,7 +81,7 @@ export default function InboxPage() {
                       <span>
                         {t(locale, "postcard.from")}: {postcard.sender.name}
                       </span>
-                      <span className="text-xs text-neutral-500">
+                      <span className="status-text">
                         {t(locale, `status.${postcard.status}`)}
                       </span>
                     </Link>
@@ -108,7 +108,7 @@ export default function InboxPage() {
                       <span>
                         {t(locale, "postcard.to")}: {postcard.receiver.name}
                       </span>
-                      <span className="text-xs text-neutral-500">
+                      <span className="status-text">
                         {t(locale, `status.${postcard.status}`)}
                       </span>
                     </Link>
