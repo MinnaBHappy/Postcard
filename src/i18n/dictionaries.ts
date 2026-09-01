@@ -57,6 +57,10 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
     "postcard.flipHint": "탭해서 뒤집기",
     "write.photoHint": "jpg, png, 아이폰 사진(HEIC) 1장만 첨부할 수 있어요",
     "write.photoInvalid": "jpg, png, HEIC 파일만 업로드할 수 있어요",
+    "postcard.weather": "날씨",
+    "weather.good": "맑음 (순풍)",
+    "weather.normal": "보통",
+    "weather.bad": "궂은 날씨 (지연)",
   },
   ja: {
     "home.title": "ふたりのポストカード",
@@ -111,6 +115,10 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
     "postcard.flipHint": "タップして裏返す",
     "write.photoHint": "jpg、png、iPhone写真(HEIC)を1枚だけ添付できます",
     "write.photoInvalid": "jpg、png、HEICファイルのみアップロードできます",
+    "postcard.weather": "天気",
+    "weather.good": "晴れ (追い風)",
+    "weather.normal": "普通",
+    "weather.bad": "悪天候 (遅延)",
   },
 };
 

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { distanceKm } from "@/lib/geo";
+import { getWeatherModifier, midpoint } from "@/lib/weather";
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -73,8 +74,9 @@ export async function POST(request: Request) {
   const receiverLat = receiver.defaultLocationLat;
   const receiverLng = receiver.defaultLocationLng;
 
-  // 날씨 API 연동 전까지는 보정 없음(1.0)으로 계산
-  const weatherModifier = 1.0;
+  // 출발지-도착지 중간 지점의 날씨를 "경로 날씨"로 대신 사용 (인프라 단순화)
+  const mid = midpoint({ lat: senderLat, lng: senderLng }, { lat: receiverLat, lng: receiverLng });
+  const { modifier: weatherModifier } = await getWeatherModifier(mid.lat, mid.lng);
   const distance = distanceKm({ lat: senderLat, lng: senderLng }, { lat: receiverLat, lng: receiverLng });
   const speedKmh = pigeon.baseSpeed * weatherModifier;
   const hoursToArrive = distance / speedKmh;

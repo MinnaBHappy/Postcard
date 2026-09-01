@@ -25,11 +25,19 @@ type PostcardDetail = {
   receiverLat: number | null;
   receiverLng: number | null;
   arrivalEta: string | null;
+  weatherModifier: number | null;
   sender: { name: string };
   receiver: { name: string };
   pigeon: { name: string } | null;
   designTemplate: { name: string } | null;
 };
+
+function weatherLabelKey(modifier: number | null): string {
+  if (modifier == null) return "weather.normal";
+  if (modifier >= 1.05) return "weather.good";
+  if (modifier < 0.95) return "weather.bad";
+  return "weather.normal";
+}
 
 type DetailResponse = {
   postcard: PostcardDetail;
@@ -137,7 +145,8 @@ export default function PostcardDetailPage() {
           </div>
           {postcard.pigeon && (
             <p className="mt-2 text-sm text-ink-muted">
-              {t(locale, "postcard.pigeon")}: {postcard.pigeon.name}
+              {t(locale, "postcard.pigeon")}: {postcard.pigeon.name} · {t(locale, "postcard.weather")}:{" "}
+              {t(locale, weatherLabelKey(postcard.weatherModifier))}
             </p>
           )}
         </div>
