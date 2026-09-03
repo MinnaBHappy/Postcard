@@ -1,0 +1,108 @@
+import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { distanceKm } from "@/lib/geo";
+import { getWeatherModifier, midpoint } from "@/lib/weather";
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const viewer = searchParams.get("viewer");
+
+  if (viewer !== "MIN" && viewer !== "MOMOKA") {
+    return NextResponse.json({ error: "invalid viewer" }, { status: 400 });
+  }
+
+  const user = await prisma.user.findUnique({ where: { name: viewer } });
+
+  if (!user) {
+    return NextResponse.json({ error: "user not found" }, { status: 404 });
+  }
+
+  const [sent, received] = await Promise.all([
+    prisma.postcard.findMany({
+      where: { senderId: user.id, deletedAt: null },
+      include: { receiver: true, pigeon: true },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.postcard.findMany({
+      where: { receiverId: user.id, deletedAt: null },
+      include: { sender: true, pigeon: true },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
+
+  return NextResponse.json({ sent, received });
+}
+
+export async function POST(request: Request) {
+  const body = await request.json();
+  const {
+    senderName,
+    imageUrl,
+    messageKo,
+    messageJa,
+    designTemplateId,
+    senderLat,
+    senderLng,
+  } = body;
+
+  if (senderName !== "MIN" && senderName !== "MOMOKA") {
+    return NextResponse.json({ error: "invalid senderName" }, { status: 400 });
+  }
+
+  if (typeof senderLat !== "number" || typeof senderLng !== "number") {
+    return NextResponse.json({ error: "sender location is required" }, { status: 400 });
+  }
+
+  const receiverName = senderName === "MIN" ? "MOMOKA" : "MIN";
+
+  const [sender, receiver, pigeons] = await Promise.all([
+    prisma.user.findUnique({ where: { name: senderName } }),
+    prisma.user.findUnique({ where: { name: receiverName } }),
+    prisma.pigeon.findMany(),
+  ]);
+
+  if (!sender || !receiver) {
+    return NextResponse.json({ error: "user not found" }, { status: 404 });
+  }
+
+  if (pigeons.length === 0) {
+    return NextResponse.json({ error: "no pigeons available" }, { status: 500 });
+  }
+
+  const pigeon = pigeons[Math.floor(Math.random() * pigeons.length)];
+
+  const receiverLat = receiver.defaultLocationLat;
+  const receiverLng = receiver.defaultLocationLng;
+
+  // 출발지-도착지 중간 지점의 날씨를 "경로 날씨"로 대신 사용 (인프라 단순화)
+  const mid = midpoint({ lat: senderLat, lng: senderLng }, { lat: receiverLat, lng: receiverLng });
+  const { modifier: weatherModifier } = await getWeatherModifier(mid.lat, mid.lng);
+  const distance = distanceKm({ lat: senderLat, lng: senderLng }, { lat: receiverLat, lng: receiverLng });
+  const speedKmh = pigeon.baseSpeed * weatherModifier;
+  const hoursToArrive = distance / speedKmh;
+
+  const departedAt = new Date();
+  const arrivalEta = new Date(departedAt.getTime() + hoursToArrive * 60 * 60 * 1000);
+
+  const postcard = await prisma.postcard.create({
+    data: {
+      senderId: sender.id,
+      receiverId: receiver.id,
+      imageUrl: imageUrl ?? null,
+      messageKo: messageKo ?? null,
+      messageJa: messageJa ?? null,
+      designTemplateId: designTemplateId ?? null,
+      status: "IN_TRANSIT",
+      senderLat,
+      senderLng,
+      receiverLat,
+      receiverLng,
+      pigeonId: pigeon.id,
+      weatherModifier,
+      departedAt,
+      arrivalEta,
+    },
+  });
+
+  return NextResponse.json({ postcard });
+}
