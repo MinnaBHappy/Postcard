@@ -61,6 +61,11 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
     "weather.good": "맑음 (순풍)",
     "weather.normal": "보통",
     "weather.bad": "궂은 날씨 (지연)",
+    "archive.title": "타임라인",
+    "archive.empty": "아직 주고받은 엽서가 없어요",
+    "postcard.delete": "삭제",
+    "postcard.deleted": "엽서를 삭제했어요",
+    "postcard.undo": "실행취소",
   },
   ja: {
     "home.title": "ふたりのポストカード",
@@ -119,6 +124,11 @@ export const dictionaries: Record<Locale, Record<string, string>> = {
     "weather.good": "晴れ (追い風)",
     "weather.normal": "普通",
     "weather.bad": "悪天候 (遅延)",
+    "archive.title": "タイムライン",
+    "archive.empty": "まだやり取りしたポストカードがありません",
+    "postcard.delete": "削除",
+    "postcard.deleted": "ポストカードを削除しました",
+    "postcard.undo": "元に戻す",
   },
 };
 
